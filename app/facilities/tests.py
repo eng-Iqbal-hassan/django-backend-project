@@ -30,7 +30,7 @@ class FacilityAPITests(APITestCase):
     def test_token_authentication(self):
         self.client.force_authenticate(None)
         token = self.client.post(
-            reverse("api-token"), {"name": "Doc", "email": "doc@example.com", "password": "pass-12345"}
+            reverse("api-token"), {"email": "doc@example.com", "password": "pass-12345"}
         ).data["token"]
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {token}")
         response = self.client.get(self.list_url)

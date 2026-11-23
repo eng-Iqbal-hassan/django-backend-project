@@ -78,3 +78,20 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class PasswordResetOTP(models.Model):
+    """A one-time code emailed to a user who forgot their password. Only a hash of the code is stored."""
+
+    user = models.ForeignKey("accounts.User", on_delete=models.CASCADE, related_name="password_reset_otps")
+    code_hash = models.CharField(max_length=128)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    attempts = models.PositiveSmallIntegerField(default=0)
+    used_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"OTP for {self.user} at {self.created_at:%Y-%m-%d %H:%M}"

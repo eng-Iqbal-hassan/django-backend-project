@@ -6,7 +6,15 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from app.accounts.permissions import IsAdmin
-from app.accounts.serializers import DoctorSerializer, LoginSerializer, MeSerializer
+from app.accounts.otp import issue_otp
+from app.accounts.serializers import (
+    DoctorSerializer,
+    ForgotPasswordSerializer,
+    LoginSerializer,
+    MeSerializer,
+    ResetPasswordSerializer,
+    VerifyOTPSerializer,
+)
 
 User = get_user_model()
 
@@ -28,9 +36,41 @@ def me(request):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def login(request):
-    """POST {"name", "email", "password"} -> {"token", "user"}. Send the token as `Authorization: Token <token>`."""
+    """POST {"email", "password"} -> {"token", "user"}. Send the token as `Authorization: Token <token>`."""
     serializer = LoginSerializer(data=request.data, context={"request": request})
     serializer.is_valid(raise_exception=True)
     user = serializer.validated_data["user"]
     token, _ = Token.objects.get_or_create(user=user)
     return Response({"token": token.key, "user": MeSerializer(user).data})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def forgot_password(request):
+    """POST {"email"} -> emails a 6-digit OTP if the account exists. Same response either way."""
+    serializer = ForgotPasswordSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    user = User.objects.filter(email=serializer.validated_data["email"].lower(), is_active=True).first()
+    if user is not None:
+        issue_otp(user)
+    # Don't reveal whether the email is registered.
+    return Response({"detail": "If an account exists for this email, an OTP has been sent."})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def verify_otp(request):
+    """POST {"email", "otp"} -> 200 if the OTP is valid. Does not use up the OTP."""
+    serializer = VerifyOTPSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    return Response({"detail": "OTP is valid."})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def reset_password(request):
+    """POST {"email", "otp", "new_password", "confirm_password"} -> sets the new password."""
+    serializer = ResetPasswordSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return Response({"detail": "Password has been reset. Please log in with your new password."})
