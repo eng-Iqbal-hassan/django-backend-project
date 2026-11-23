@@ -29,7 +29,7 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, name, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
-        extra_fields.setdefault("role", User.Role.SALESMAN)
+        extra_fields.setdefault("role", User.Role.ADMIN)
         if not extra_fields.get("is_staff") or not extra_fields.get("is_superuser"):
             raise ValueError("Superuser must have is_staff=True and is_superuser=True")
         return self._create_user(email, name, password, **extra_fields)
@@ -62,6 +62,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
     EMAIL_FIELD = "email"
     REQUIRED_FIELDS = ["name"]
+
+    @property
+    def is_admin(self):
+        return self.role == self.Role.ADMIN
 
     @property
     def is_doctor(self):

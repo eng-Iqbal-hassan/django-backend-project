@@ -16,12 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     # Login/logout for the browsable API (session auth).
     path('api-auth/', include('rest_framework.urls')),
-    # POST {"username": <email>, "password": ...} -> {"token": ...}
-    path('api/auth/token/', obtain_auth_token, name='api-token'),
+    path('api/', include('app.facilities.urls')),
+    path('api/', include('app.accounts.urls')),
 ]
