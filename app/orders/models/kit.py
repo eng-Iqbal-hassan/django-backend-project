@@ -10,7 +10,7 @@ class Kit(models.Model):
 
     name = models.CharField(max_length=255)
     variant_label = models.CharField(max_length=255, blank=True)
-    image_url = models.URLField(max_length=500, blank=True)
+    image = models.ImageField(upload_to='kits/', blank=True, null=True)
     stock_quantity = models.PositiveIntegerField(default=0)
     ice_packs_per_kit = models.PositiveIntegerField(default=0)
     fedex_packs_per_line = models.PositiveIntegerField(default=0)

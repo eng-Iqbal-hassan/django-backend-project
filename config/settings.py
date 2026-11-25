@@ -131,6 +131,11 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# User-uploaded files (e.g. kit images).
+# In production these must be served by the web server (or cloud storage), not Django.
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
