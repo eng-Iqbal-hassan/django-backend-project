@@ -25,6 +25,7 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('api/', include('app.facilities.urls')),
     path('api/', include('app.accounts.urls')),
+    path('api/', include('app.orders.urls')),
 ]
 
 # Serve uploaded media files during development only.
